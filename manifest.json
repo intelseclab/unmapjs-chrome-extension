@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "UnmapJS – Source Map Extractor",
+  "version": "1.0.0",
+  "description": "React, Next.js, Vite ve Webpack uygulamalarından JavaScript source map'lerini keşfeder ve orijinal kaynak kodları ZIP olarak indirir.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads",
+    "storage",
+    "tabs",
+    "notifications"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "UnmapJS",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}

@@ -1,0 +1,315 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0d0d14;
+  color: #e2e8f0;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #1e1e2e;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.logo-text .sub {
+  color: #6b7280;
+  font-weight: 400;
+  font-size: 15px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.total-badge {
+  font-size: 12px;
+  color: #a78bfa;
+  background: #1a1232;
+  border: 1px solid #7c3aed40;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Consolas', monospace;
+}
+
+.btn-clear {
+  background: transparent;
+  border: 1px solid #7f1d1d60;
+  color: #f87171;
+  border-radius: 7px;
+  padding: 5px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-clear:hover { background: #1f0a0a; }
+
+/* Filter bar */
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  flex: 1;
+  background: #13131f;
+  border: 1px solid #252538;
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: #e2e8f0;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus { border-color: #7c3aed; }
+.search-input::placeholder { color: #4a5568; }
+
+.filter-info {
+  font-size: 12px;
+  color: #4a5568;
+  white-space: nowrap;
+  font-family: 'Consolas', monospace;
+  min-width: 60px;
+  text-align: right;
+}
+
+/* List */
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Entry card */
+.entry-card {
+  background: #13131f;
+  border: 1px solid #1e1e2e;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color 0.15s;
+  animation: slideIn 0.2s ease;
+}
+
+.entry-card:hover { border-color: #7c3aed40; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.entry-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #1a1232;
+  border: 1px solid #7c3aed30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.entry-icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.entry-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.entry-hostname {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry-url {
+  font-size: 11px;
+  color: #4a5568;
+  font-family: 'Consolas', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.meta-chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  font-family: 'Consolas', monospace;
+}
+
+.chip-green {
+  background: #0b2318;
+  color: #34d399;
+  border: 1px solid #059669;
+}
+
+.chip-gray {
+  background: #111120;
+  color: #4a5568;
+  border: 1px solid #252538;
+}
+
+/* React2Shell CVE risk chips */
+.chip-blue {
+  background: #0a1628;
+  color: #60a5fa;
+  border: 1px solid #1d4ed8;
+}
+
+.chip-yellow {
+  background: #1a1200;
+  color: #fbbf24;
+  border: 1px solid #b45309;
+}
+
+.chip-orange {
+  background: #1a0a00;
+  color: #fb923c;
+  border: 1px solid #c2410c;
+}
+
+.chip-red {
+  background: #1a0000;
+  color: #f87171;
+  border: 1px solid #dc2626;
+  font-weight: 700;
+  animation: blink-red 2s infinite;
+}
+
+@keyframes blink-red {
+  0%, 100% { border-color: #dc2626; }
+  50%       { border-color: #7f1d1d; }
+}
+
+.entry-time {
+  font-size: 11px;
+  color: #4a5568;
+  margin-left: auto;
+  white-space: nowrap;
+  font-family: 'Consolas', monospace;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-analyze {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btn-analyze:hover { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+.btn-open {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #252538;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.btn-open:hover { color: #a78bfa; border-color: #7c3aed40; }
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.empty-desc {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+  max-width: 400px;
+}
+
+/* Date group header */
+.date-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #1e1e2e;
+  margin-top: 8px;
+}
+.date-header:first-child { margin-top: 0; }

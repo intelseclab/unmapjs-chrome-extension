@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UnmapJS</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3L4 12L8 21" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 3L20 12L16 21" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 7V17" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="2" fill="#a78bfa"/>
+        </svg>
+        <span class="logo-text">UnmapJS</span>
+      </div>
+      <span class="badge">v1.0.0</span>
+    </header>
+
+    <!-- ── Passive Scan Banner ── -->
+    <div id="passiveBanner" class="passive-banner hidden">
+      <span class="passive-icon">✦</span>
+      <span id="passiveMsg">Sourcemap found on this site!</span>
+      <button id="historyBtn" class="badge-link">History</button>
+    </div>
+
+    <!-- ── Target URL ── -->
+    <section class="section">
+      <label class="label">Target</label>
+      <div class="url-box">
+        <span id="currentUrl" class="url-text">Loading…</span>
+      </div>
+    </section>
+
+    <!-- ── Options ── -->
+    <section class="section">
+      <div class="options-row">
+        <label class="opt-label" title="Include files from the node_modules directory">
+          <input type="checkbox" id="includeNodeModules" />
+          <span>Include node_modules</span>
+        </label>
+        <label class="opt-label" title="Also scan common paths like login, dashboard">
+          <input type="checkbox" id="includeProbes" checked />
+          <span>Scan common paths</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- ── Settings ── -->
+    <section class="section">
+      <div class="options-row">
+        <label class="opt-label" title="Automatically scan every visited page">
+          <input type="checkbox" id="autoScan" checked />
+          <span>Auto scan</span>
+        </label>
+        <label class="opt-label" title="Send notification when sourcemap is found">
+          <input type="checkbox" id="notifEnabled" checked />
+          <span>Send notification</span>
+        </label>
+        <button id="historyBtnMain" class="btn-history">&#9776; History</button>
+      </div>
+    </section>
+
+    <!-- ── Analyze Button ── -->
+    <section class="section">
+      <button id="analyzeBtn" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
+        Analyze
+      </button>
+    </section>
+
+    <!-- ── Progress ── -->
+    <section id="progressSection" class="section hidden">
+      <div class="status-msg" id="statusMsg">Starting…</div>
+      <div class="progress-row">
+        <div class="progress-track">
+          <div id="progressBar" class="progress-fill" style="width:0%"></div>
+        </div>
+        <span id="progressPct" class="progress-pct">0%</span>
+      </div>
+      <div class="steps" id="stepList">
+        <div class="step" id="step-1" data-state="idle">
+          <span class="step-icon"></span><span class="step-txt">JS Chunk Discovery</span>
+          <span class="step-count" id="sc-1"></span>
+        </div>
+        <div class="step" id="step-2" data-state="idle">
+          <span class="step-icon"></span><span class="step-txt">Sourcemap Detection</span>
+          <span class="step-count" id="sc-2"></span>
+        </div>
+        <div class="step" id="step-3" data-state="idle">
+          <span class="step-icon"></span><span class="step-txt">Source Code Extraction</span>
+          <span class="step-count" id="sc-3"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Results ── -->
+    <section id="resultsSection" class="section hidden">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-val" id="statChunks">0</span>
+          <span class="stat-lbl">Chunks</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-val" id="statSourcemaps">0</span>
+          <span class="stat-lbl">Sourcemaps</span>
+        </div>
+        <div class="stat-card highlight">
+          <span class="stat-val" id="statFiles">0</span>
+          <span class="stat-lbl">Files</span>
+        </div>
+      </div>
+      <button id="downloadBtn" class="btn btn-success">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v12M7 11l5 5 5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        Download as ZIP
+      </button>
+      <button id="reAnalyzeBtn" class="btn btn-ghost">Re-Analyze</button>
+    </section>
+
+    <!-- ── Error ── -->
+    <section id="errorSection" class="section hidden">
+      <div class="error-card">
+        <div class="error-icon">✕</div>
+        <div id="errorMsg" class="error-msg">An error occurred.</div>
+      </div>
+      <button id="retryBtn" class="btn btn-ghost" style="margin-top:8px">Retry</button>
+    </section>
+
+  <script src="lib/jszip.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
