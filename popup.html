@@ -23,13 +23,6 @@
       <span class="badge">v1.0.0</span>
     </header>
 
-    <!-- ── Passive Scan Banner ── -->
-    <div id="passiveBanner" class="passive-banner hidden">
-      <span class="passive-icon">✦</span>
-      <span id="passiveMsg">Sourcemap found on this site!</span>
-      <button id="historyBtn" class="badge-link">History</button>
-    </div>
-
     <!-- ── Target URL ── -->
     <section class="section">
       <label class="label">Target</label>
@@ -55,16 +48,22 @@
     <!-- ── Settings ── -->
     <section class="section">
       <div class="options-row">
-        <label class="opt-label" title="Automatically scan every visited page">
-          <input type="checkbox" id="autoScan" checked />
-          <span>Auto scan</span>
+        <label class="opt-label" title="Automatically scan only sites you explicitly granted access to">
+          <input type="checkbox" id="autoScan" />
+          <span>Auto scan granted sites</span>
         </label>
-        <label class="opt-label" title="Send notification when sourcemap is found">
-          <input type="checkbox" id="notifEnabled" checked />
-          <span>Send notification</span>
+        <label class="opt-label" title="Send notification when sourcemap is found on granted sites">
+          <input type="checkbox" id="notifEnabled" />
+          <span>Send notifications</span>
         </label>
-        <button id="historyBtnMain" class="btn-history">&#9776; History</button>
       </div>
+      <p class="compliance-note">
+        Site access is requested per-site when you run Analyze. Use only on applications you are authorized to test.
+      </p>
+      <p class="community-note">
+        GitHub: <a class="community-link" href="https://github.com/intelseclab/unmapjs-chrome-extension" target="_blank" rel="noopener noreferrer">intelseclab/unmapjs-chrome-extension</a><br>
+        Have feedback or feature ideas? Open an issue. If this helps you, please star the repo.
+      </p>
     </section>
 
     <!-- ── Analyze Button ── -->

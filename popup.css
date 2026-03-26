@@ -1,52 +1,3 @@
-/* ── Passive Scan Banner ────────────────────────────────── */
-.passive-banner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, #064e3b, #065f46);
-  border: 1px solid #059669;
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: #6ee7b7;
-  animation: fadeIn 0.3s ease;
-}
-
-.passive-banner.hidden { display: none; }
-
-.passive-icon {
-  font-size: 14px;
-  color: #34d399;
-  flex-shrink: 0;
-}
-
-.badge-link {
-  margin-left: auto;
-  background: transparent;
-  border: 1px solid #34d399;
-  color: #34d399;
-  border-radius: 5px;
-  padding: 2px 8px;
-  font-size: 10px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.badge-link:hover { background: #059669; color: #fff; }
-
-.btn-history {
-  margin-left: auto;
-  background: transparent;
-  border: 1px solid #2d2d44;
-  color: #6b7280;
-  border-radius: 6px;
-  padding: 3px 9px;
-  font-size: 11px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.btn-history:hover { color: #a78bfa; border-color: #7c3aed40; }
-
-@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
 /* ── Reset & Base ────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -163,6 +114,29 @@ body {
 }
 
 .opt-label:hover { color: #e2e8f0; }
+
+.compliance-note {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.community-note {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+.community-link {
+  color: #a78bfa;
+  text-decoration: none;
+}
+
+.community-link:hover {
+  text-decoration: underline;
+}
 
 /* ── Buttons ─────────────────────────────────────────────── */
 .btn {

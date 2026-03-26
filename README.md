@@ -2,7 +2,11 @@
 
 > A Chrome extension that recovers original source files from JavaScript source maps of any React, Next.js, Vite, or Webpack-based web application.
 
-![UnmapJS Screenshot](photo.png)
+#### 1. **Discover** all JavaScript chunks loaded by a page.
+![UnmapJS Screenshot](stage1.png)
+#### 2. **Detect** sourcemap references inside those chunks.
+#### 3. **Extract** the original source files from the sourcemap JSON.
+![UnmapJS Demo](stage2.png)
 
 ---
 
@@ -17,19 +21,18 @@ Modern web applications bundle and minify their JavaScript before deployment. Ho
 3. **Extracting** the original source files from the sourcemap JSON.
 4. **Packaging** everything into a downloadable `.zip` archive.
 
-It also runs a **passive background scanner** on every page you visit — silently checking for sourcemaps and notifying you when source code is found, without any manual interaction required.
+It can also run a **passive background scanner** (optional) on pages where you granted access, notifying you when source code is found.
 
 ---
 
 ## Features
 
 - One-click analysis with live step-by-step progress
-- Passive auto-scan on every tab navigation with badge indicator
+- Optional passive auto-scan on granted sites with badge indicator
 - Discovers chunks via HTML parsing, Performance API, and Next.js build manifests
 - Optional common-path probing (login, dashboard, etc.)
 - Optional `node_modules` inclusion / exclusion
 - Browser notification when sourcemaps are detected
-- History page listing all previously found sites
 - Downloads recovered source files as a structured ZIP archive
 
 ---
@@ -48,6 +51,14 @@ chrome://extensions/ → Pack Extension → select project folder
 
 ---
 
+## Community
+
+GitHub repository: https://github.com/intelseclab/unmapjs-chrome-extension
+
+Feedback and feature requests are welcome via GitHub Issues. If UnmapJS is useful for your workflow, please consider starring the repository.
+
+---
+
 ## Tech Stack
 
 | Component | Details |
@@ -58,6 +69,16 @@ chrome://extensions/ → Pack Extension → select project folder
 | Analysis engine | `src/engine.js` |
 | Passive scanner | `src/scanner.js` |
 | ZIP packaging | [JSZip](https://stuk.github.io/jszip/) |
+
+---
+
+## Permissions & Privacy
+
+- Uses `activeTab` and `scripting` to inspect the currently selected page when you click **Analyze**.
+- Requests site access at runtime per-site when needed for analysis.
+- Auto-scan is **off by default** and runs only on sites where you have granted access.
+- Notification alerts are **off by default**.
+- Data is stored locally in `chrome.storage.local` and not sent to external servers by this extension.
 
 ---
 

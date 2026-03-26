@@ -7,7 +7,6 @@
 import { SCAN_COOLDOWN_MS, PASSIVE_CHUNKS } from "./constants.js";
 import { safeFetch, safeFetchJson } from "./fetcher.js";
 import { discoverFromHtml, extractSourcemapUrl } from "./discovery.js";
-import { addToHistory } from "./storage.js";
 
 // Hostname  last-scan timestamp (cleared on service-worker restart; that's fine)
 const recentlyScanned = new Map();
@@ -112,17 +111,8 @@ export async function passiveScan(tabId, url) {
 
   await setBadge(tabId, "MAP", "#059669");
 
-  // Persist to history (one entry per hostname per day)
-  await addToHistory({
-    url, hostname,
-    sourcemapCount: sourcemapUrls.length,
-    verifiedFiles:  verifiedFileCount,
-    chunksChecked:  toCheck.length,
-    timestamp:      Date.now(),
-  });
-
   //  Notification  only when real files confirmed 
-  if (settings.notifications !== false) {
+  if (settings.notifications === true) {
     chrome.notifications.create(`unmapjs_map_${Date.now()}`, {
       type: "basic", iconUrl: "icons/icon48.png",
       title: "UnmapJS – Source Code Found!",

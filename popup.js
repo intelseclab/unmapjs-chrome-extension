@@ -10,6 +10,19 @@ let collectedFiles = [];
 // Step progress tracking
 const stepProgress = { 1: { done: 0, total: 0 }, 2: { done: 0, total: 0 }, 3: { done: 0, total: 0 } };
 
+function toOriginPattern(rawUrl) {
+  const u = new URL(rawUrl);
+  return `${u.origin}/*`;
+}
+
+async function ensureSitePermission(rawUrl) {
+  const originPattern = toOriginPattern(rawUrl);
+  const has = await chrome.permissions.contains({ origins: [originPattern] });
+  if (has) return true;
+  const granted = await chrome.permissions.request({ origins: [originPattern] });
+  return granted === true;
+}
+
 // ============================================================
 // INIT
 // ============================================================
@@ -29,16 +42,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load settings
   loadSettings();
 
-  // Check if current site was passively found
-  checkPassiveBanner();
-
   // Wire buttons
   document.getElementById('analyzeBtn').addEventListener('click', startAnalysis);
   document.getElementById('downloadBtn').addEventListener('click', downloadZip);
   document.getElementById('reAnalyzeBtn').addEventListener('click', () => { resetUI(); startAnalysis(); });
   document.getElementById('retryBtn').addEventListener('click', () => { resetUI(); startAnalysis(); });
-  document.getElementById('historyBtn').addEventListener('click', openHistory);
-  document.getElementById('historyBtnMain').addEventListener('click', openHistory);
 
   // Settings toggles
   document.getElementById('autoScan').addEventListener('change', saveSettings);
@@ -51,15 +59,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 function show(id)  { document.getElementById(id)?.classList.remove('hidden'); }
 function hide(id)  { document.getElementById(id)?.classList.add('hidden'); }
 
-function openHistory() {
-  chrome.tabs.create({ url: chrome.runtime.getURL('history.html') });
-}
-
 async function loadSettings() {
   const data = await chrome.storage.local.get('unmapjs_settings').catch(() => ({}));
   const s = data.unmapjs_settings || {};
-  document.getElementById('autoScan').checked    = s.autoScan    !== false;
-  document.getElementById('notifEnabled').checked = s.notifications !== false;
+  document.getElementById('autoScan').checked = s.autoScan === true;
+  document.getElementById('notifEnabled').checked = s.notifications === true;
 }
 
 async function saveSettings() {
@@ -69,21 +73,6 @@ async function saveSettings() {
       notifications: document.getElementById('notifEnabled').checked,
     },
   }).catch(() => {});
-}
-
-async function checkPassiveBanner() {
-  if (!currentTab?.url) return;
-  let hostname;
-  try { hostname = new URL(currentTab.url).hostname; } catch { return; }
-  const data = await chrome.storage.local.get('unmapjs_history').catch(() => ({}));
-  const history = data.unmapjs_history || [];
-  const today = new Date().toDateString();
-  const entry = history.find(h => h.hostname === hostname && new Date(h.timestamp).toDateString() === today);
-  if (entry) {
-    document.getElementById('passiveMsg').textContent =
-      entry.sourcemapCount + ' sourcemap(s) found on ' + hostname + '!';
-    document.getElementById('passiveBanner').classList.remove('hidden');
-  }
 }
 
 function setProgress(pct, label) {
@@ -124,6 +113,12 @@ async function startAnalysis() {
   const url = currentTab.url || '';
   if (!url.startsWith('http')) {
     showError('This page cannot be analyzed.\n(chrome://, extension:// etc. URLs are not supported)');
+    return;
+  }
+
+  const hasPermission = await ensureSitePermission(url).catch(() => false);
+  if (!hasPermission) {
+    showError('Site permission is required to analyze this page. Please grant access and try again.');
     return;
   }
 
