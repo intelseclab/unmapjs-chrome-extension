@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "UnmapJS – Source Map Extractor",
+  "name": "UnmapJS – Source Map Exposure Scanner",
   "version": "1.0.0",
-  "description": "Discovers JavaScript source maps from React, Next.js, Vite and Webpack applications and downloads the original source code as a ZIP archive.",
+  "description": "Finds exposed JavaScript source maps and downloads recoverable source files as a ZIP archive.",
   "permissions": [
     "activeTab",
     "scripting",
