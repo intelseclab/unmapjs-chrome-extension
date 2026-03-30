@@ -6,7 +6,6 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "downloads",
     "storage",
     "tabs",
     "notifications"

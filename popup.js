@@ -171,6 +171,7 @@ async function startAnalysis() {
   port.postMessage({
     type: 'analyze',
     url,
+    tabId: currentTab.id,
     pageScripts,
     pageHtml,
     options: {

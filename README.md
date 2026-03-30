@@ -19,7 +19,7 @@ Modern web applications bundle and minify their JavaScript before deployment. Ho
 1. **Discovering** all JavaScript chunk files loaded by a page (via `<script>` tags, the Performance API, build manifests, and common route probing).
 2. **Detecting** sourcemap references (`//# sourceMappingURL=...`) inside those chunks.
 3. **Extracting** the original source files from the sourcemap JSON.
-4. **Packaging** everything into a downloadable `.zip` archive.
+4. **Packaging** everything into a `.zip` archive for local export.
 
 It can also run a **passive background scanner** (optional) on pages where you granted access, notifying you when source code is found.
 

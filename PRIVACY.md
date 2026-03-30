@@ -26,12 +26,11 @@ Recovered source files are exported only when the user explicitly requests a ZIP
 5) Permissions usage
 The extension uses Chrome permissions strictly for its single purpose:
 - activeTab: analyze the currently active tab after user action
-- scripting: collect page script/resource references needed for detection
-- downloads: save user-requested ZIP exports
+- scripting: inject content scripts to collect page script references and perform fetch requests from the page context. Page-context fetching enables downloading sourcemaps hosted on CDNs (cross-origin resources) that the page itself loads. No remote code is executed—all injected functions are defined within the bundled extension.
 - storage: persist extension preferences
 - tabs: read active tab information and support optional passive scanning flow
 - notifications: optional user alerts for findings
-- optional host access: requested per-site at runtime
+- optional host access: requested per-site at runtime to enable analysis
 
 6) Data sharing and sale
 We do not sell, rent, or transfer user data to third parties, except where required by law.

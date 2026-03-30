@@ -1,7 +1,7 @@
 // Main analysis engine: driven by messages from the popup via a Chrome port.
 
 import { PROBE_PATHS, MAX_CHUNKS } from "./constants.js";
-import { safeFetch, safeFetchJson, fetchBatch } from "./fetcher.js";
+import { safeFetch, safeFetchJson, fetchBatch, setFetchContext, clearFetchContext } from "./fetcher.js";
 import { discoverFromHtml, discoverFromBuildManifest, discoverFromJsContent, extractSourcemapUrl } from "./discovery.js";
 import { extractSources } from "./extractor.js";
 
@@ -106,6 +106,9 @@ async function step3_extractFiles(sourcemapUrls, includeNodeModules, send) {
 export async function runAnalysis(msg, port) {
   const _send = (m) => send(port, m);
 
+  // Set up page-context fetching if tabId is available
+  if (msg.tabId) setFetchContext(msg.tabId);
+
   // Normalise the target URL to its origin
   let baseUrl = msg.url?.startsWith("http") ? msg.url : `https://${msg.url}`;
   baseUrl = baseUrl.replace(/\/$/, "");
@@ -144,5 +147,8 @@ export async function runAnalysis(msg, port) {
 
   } catch (err) {
     _send({ type: "error", message: err.message || String(err) });
+  } finally {
+    // Clean up fetch context
+    clearFetchContext();
   }
 }
