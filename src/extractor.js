@@ -6,7 +6,7 @@ import { SOURCE_PATH_PREFIXES } from "./constants.js";
  * Strips bundler-specific prefixes and normalises a source path.
  * Returns null for paths that are unsafe or unresolvable.
  */
-function cleanSourcePath(rawPath) {
+export function cleanSourcePath(rawPath) {
   let p = rawPath;
 
   for (const prefix of SOURCE_PATH_PREFIXES) {

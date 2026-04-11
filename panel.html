@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>UnmapJS – Resource Capture</title>
+  <link rel="stylesheet" href="panel.css" />
+</head>
+<body>
+<div class="panel">
+
+  <!-- ── Header ── -->
+  <header class="p-header">
+    <div class="p-logo">
+      <svg class="p-logo-svg" viewBox="0 0 24 24" fill="none">
+        <path d="M8 3L4 12L8 21"  stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M16 3L20 12L16 21" stroke="#a78bfa" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 7V17" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="12" r="2" fill="#a78bfa"/>
+      </svg>
+      <span class="p-logo-text">UnmapJS</span>
+      <span class="p-tab-label">Resource Capture</span>
+    </div>
+    <span class="p-badge">DevTools Panel</span>
+  </header>
+
+  <div class="p-body">
+
+    <!-- ── Current URL ── -->
+    <div class="p-row">
+      <span class="p-label">Target</span>
+      <div class="p-url-box">
+        <span id="currentUrl" class="p-url-text">Loading…</span>
+      </div>
+    </div>
+
+    <!-- ── Stats ── -->
+    <div class="p-stats">
+      <div class="p-stat">
+        <span class="p-stat-val" id="staticCount">0</span>
+        <span class="p-stat-lbl">Static Resources</span>
+      </div>
+      <div class="p-stat">
+        <span class="p-stat-val" id="xhrCount">0</span>
+        <span class="p-stat-lbl">XHR / Network</span>
+      </div>
+      <div class="p-stat highlight">
+        <span class="p-stat-val" id="totalCount">0</span>
+        <span class="p-stat-lbl">Total</span>
+      </div>
+    </div>
+
+    <!-- ── Options ── -->
+    <div class="p-options">
+      <label class="p-opt" title="Capture XHR and fetch requests (requires page reload)">
+        <input type="checkbox" id="xhrToggle" />
+        <span>Capture XHR / Network</span>
+        <span class="p-opt-hint">(reloads page)</span>
+      </label>
+      <label class="p-opt" title="Skip resources with no content">
+        <input type="checkbox" id="ignoreEmpty" checked />
+        <span>Ignore empty files</span>
+      </label>
+    </div>
+
+    <!-- ── Primary actions ── -->
+    <div class="p-actions">
+      <button id="saveBtn" class="p-btn p-btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v12M7 11l5 5 5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        Save All Resources
+      </button>
+      <button id="resetBtn" class="p-btn p-btn-ghost">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M3 3v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Reset
+      </button>
+    </div>
+
+    <!-- ── Batch mode ── -->
+    <div class="p-section">
+      <div class="p-section-header">
+        <span class="p-label">Batch Mode</span>
+        <button id="batchEditBtn" class="p-btn-inline">
+          Edit URL List <span id="batchUrlCount"></span>
+        </button>
+      </div>
+      <p class="p-hint">
+        Navigates to each URL in the list, captures all resources, and downloads a separate ZIP per site.
+      </p>
+      <button id="saveBatchBtn" class="p-btn p-btn-secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        Save from List
+      </button>
+    </div>
+
+    <!-- ── Status ── -->
+    <div class="p-status-area">
+      <div id="statusMsg" class="p-status-msg">Ready.</div>
+      <div class="p-progress-track">
+        <div id="progressBar" class="p-progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+  </div><!-- /p-body -->
+</div><!-- /panel -->
+
+<!-- ── Batch URL modal ── -->
+<div id="batchModal" class="p-modal-overlay hidden">
+  <div class="p-modal">
+    <div class="p-modal-header">
+      <span class="p-modal-title">Batch URL List</span>
+      <button id="batchModalCancel" class="p-modal-close">✕</button>
+    </div>
+    <p class="p-modal-hint">Enter one URL per line. Only <code>http://</code> and <code>https://</code> URLs are accepted.</p>
+    <textarea id="batchUrlList" class="p-modal-textarea" placeholder="https://example.com&#10;https://another-site.com" spellcheck="false"></textarea>
+    <div class="p-modal-actions">
+      <button id="batchModalOk" class="p-btn p-btn-primary">Save List</button>
+      <button id="batchModalCancel2" class="p-btn p-btn-ghost">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="lib/jszip.min.js"></script>
+<script src="panel.js"></script>
+</body>
+</html>

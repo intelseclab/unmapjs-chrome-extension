@@ -6,21 +6,9 @@
 import { runAnalysis } from "./src/engine.js";
 import { passiveScan } from "./src/scanner.js";
 
-function toOriginPattern(rawUrl) {
+function canAutoScanUrl(rawUrl) {
   try {
-    const u = new URL(rawUrl);
-    if (!/^https?:$/.test(u.protocol)) return null;
-    return `${u.origin}/*`;
-  } catch (_) {
-    return null;
-  }
-}
-
-async function canAutoScanUrl(rawUrl) {
-  const originPattern = toOriginPattern(rawUrl);
-  if (!originPattern) return false;
-  try {
-    return await chrome.permissions.contains({ origins: [originPattern] });
+    return /^https?:$/.test(new URL(rawUrl).protocol);
   } catch (_) {
     return false;
   }
@@ -48,7 +36,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   chrome.storage.local.get("unmapjs_settings", async (data) => {
     const settings = data?.unmapjs_settings ?? {};
     if (settings.autoScan !== true) return;
-    if (!(await canAutoScanUrl(tab.url))) return;
+    if (!canAutoScanUrl(tab.url)) return;
     passiveScan(tabId, tab.url);
   });
 });

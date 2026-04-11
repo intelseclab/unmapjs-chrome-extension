@@ -3,7 +3,7 @@
 import { PROBE_PATHS, MAX_CHUNKS } from "./constants.js";
 import { safeFetch, safeFetchJson, fetchBatch, setFetchContext, clearFetchContext } from "./fetcher.js";
 import { discoverFromHtml, discoverFromBuildManifest, discoverFromJsContent, extractSourcemapUrl } from "./discovery.js";
-import { extractSources } from "./extractor.js";
+import { extractSources, cleanSourcePath } from "./extractor.js";
 
 /** Sends a message to the popup port; silently ignores if the popup was closed. */
 function send(port, msg) {
@@ -82,6 +82,58 @@ async function step2_findSourcemaps(jsChunks, baseUrl, send) {
   return { sourcemapUrls };
 }
 
+/**
+ * Resolves a source path from a sourcemap entry to a fetchable https?:// URL.
+ * Returns null for virtual bundler paths (webpack:///, turbopack:///, etc.)
+ * that cannot be fetched over HTTP.
+ */
+function resolveSourceUrl(sourcePath, smUrl) {
+  if (!sourcePath) return null;
+  if (/^(webpack|turbopack|ng|rollup|vite|rsc|debugger|chrome-extension):/.test(sourcePath)) return null;
+  if (sourcePath.startsWith("(")) return null;   // e.g. "(webpack)/buildin/..."
+  if (sourcePath.includes("\0")) return null;     // null-byte virtual modules
+  try {
+    const u = new URL(sourcePath, smUrl);
+    return /^https?:$/.test(u.protocol) ? u.href : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * When a sourcemap has no sourcesContent, attempt to fetch each referenced
+ * source file individually using its resolved URL.
+ */
+async function fetchExternalSources(sources, smUrl, sourceRoot, includeNodeModules, send) {
+  const files = [];
+
+  // sourceRoot shifts the base for relative paths
+  const base = sourceRoot
+    ? new URL(sourceRoot.endsWith("/") ? sourceRoot : sourceRoot + "/", smUrl).href
+    : smUrl;
+
+  const candidates = sources
+    .filter(s => includeNodeModules || !s.includes("node_modules"))
+    .map(s => ({ raw: s, url: resolveSourceUrl(s, base) }))
+    .filter(({ url }) => url !== null);
+
+  if (candidates.length === 0) return files;
+
+  send({ type: "status", message: `Fetching ${candidates.length} external source file(s)...` });
+
+  await Promise.allSettled(
+    candidates.map(async ({ raw, url }) => {
+      const content = await safeFetch(url);
+      if (!content) return;
+      const path = cleanSourcePath(raw);
+      if (!path) return;
+      files.push({ path, content });
+    })
+  );
+
+  return files;
+}
+
 async function step3_extractFiles(sourcemapUrls, includeNodeModules, send) {
   const smList   = [...sourcemapUrls];
   const allFiles = [];
@@ -91,7 +143,24 @@ async function step3_extractFiles(sourcemapUrls, includeNodeModules, send) {
     await Promise.allSettled(
       smList.slice(i, i + 4).map(async (smUrl) => {
         const data = await safeFetchJson(smUrl);
-        if (data) allFiles.push(...extractSources(data, includeNodeModules));
+        if (data) {
+          // Primary path: inline sourcesContent
+          const inline = extractSources(data, includeNodeModules);
+          if (inline.length > 0) {
+            allFiles.push(...inline);
+          } else if (data.sources?.length > 0) {
+            // Fallback: sourcemap exists but has no embedded content —
+            // attempt to fetch each source file by its resolved URL.
+            const external = await fetchExternalSources(
+              data.sources,
+              smUrl,
+              data.sourceRoot || "",
+              includeNodeModules,
+              send
+            );
+            allFiles.push(...external);
+          }
+        }
         smDone++;
       })
     );
@@ -99,6 +168,37 @@ async function step3_extractFiles(sourcemapUrls, includeNodeModules, send) {
   }
 
   return allFiles;
+}
+
+/**
+ * Fallback: re-fetch raw JS chunks and return them as downloadable files.
+ * Used when sourcemaps exist but yield zero source files.
+ */
+async function collectRawChunks(jsChunks, send) {
+  const MAX = 200;
+  const toFetch = jsChunks.slice(0, MAX);
+  const files   = [];
+  let   done    = 0;
+
+  await Promise.allSettled(
+    toFetch.map(async (chunkUrl) => {
+      const content = await safeFetch(chunkUrl);
+      if (content) {
+        let path;
+        try {
+          const u = new URL(chunkUrl);
+          path = (u.hostname + u.pathname).replace(/^\/+/, "").replace(/[?#].*$/, "");
+        } catch (_) {
+          path = "chunks/" + chunkUrl.split("/").pop().replace(/[?#].*$/, "");
+        }
+        if (!/\.[a-z0-9]+$/i.test(path)) path += ".js";
+        files.push({ path, content });
+      }
+      send({ type: "progress", step: 3, done: ++done, total: toFetch.length });
+    })
+  );
+
+  return files;
 }
 
 // ── Public entry point ────────────────────────────────────────
@@ -138,6 +238,19 @@ export async function runAnalysis(msg, port) {
     _send({ type: "status", message: "Downloading sourcemaps..." });
     const allFiles = await step3_extractFiles(sourcemapUrls, msg.options?.includeNodeModules ?? false, _send);
     _send({ type: "step_done", step: 3, count: allFiles.length });
+
+    // ── Fallback: no source files recovered → serve raw JS chunks ──
+    if (allFiles.length === 0) {
+      _send({ type: "status", message: "No source files found — collecting raw JS chunks as fallback..." });
+      const chunkFiles = await collectRawChunks(jsChunks, _send);
+      _send({
+        type:    "complete",
+        files:   chunkFiles,
+        stats:   { chunks: jsChunks.length, sourcemaps: sourcemapUrls.size, files: chunkFiles.length },
+        fallback: "chunks",
+      });
+      return;
+    }
 
     _send({
       type:  "complete",

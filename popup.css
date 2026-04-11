@@ -299,6 +299,26 @@ body {
   margin-top: 3px;
 }
 
+/* ── No-content note ─────────────────────────────────────── */
+.no-content-note {
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  line-height: 1.5;
+}
+
+.no-content-note[data-type="warn"] {
+  color: #f59e0b;
+  background: #1c1500;
+  border: 1px solid #92400e60;
+}
+
+.no-content-note[data-type="error"] {
+  color: #fca5a5;
+  background: #160808;
+  border: 1px solid #7f1d1d60;
+}
+
 /* ── Error ───────────────────────────────────────────────── */
 .error-card {
   background: #160808;

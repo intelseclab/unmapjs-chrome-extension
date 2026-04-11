@@ -20,7 +20,7 @@
         </svg>
         <span class="logo-text">UnmapJS</span>
       </div>
-      <span class="badge">v1.0.0</span>
+      <span class="badge">v1.1.0</span>
     </header>
 
     <!-- ── Target URL ── -->
@@ -48,11 +48,11 @@
     <!-- ── Settings ── -->
     <section class="section">
       <div class="options-row">
-        <label class="opt-label" title="Automatically scan only sites you explicitly granted access to">
+        <label class="opt-label" title="Automatically scan pages as you browse">
           <input type="checkbox" id="autoScan" />
-          <span>Auto scan granted sites</span>
+          <span>Auto scan on navigation</span>
         </label>
-        <label class="opt-label" title="Send notification when sourcemap is found on granted sites">
+        <label class="opt-label" title="Send notification when a sourcemap is found">
           <input type="checkbox" id="notifEnabled" />
           <span>Send notifications</span>
         </label>
@@ -115,6 +115,7 @@
           <span class="stat-lbl">Files</span>
         </div>
       </div>
+      <p id="noContentNote" class="no-content-note hidden" data-type="warn"></p>
       <button id="downloadBtn" class="btn btn-success">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path d="M12 4v12M7 11l5 5 5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>

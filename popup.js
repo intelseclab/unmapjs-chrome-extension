@@ -10,18 +10,6 @@ let collectedFiles = [];
 // Step progress tracking
 const stepProgress = { 1: { done: 0, total: 0 }, 2: { done: 0, total: 0 }, 3: { done: 0, total: 0 } };
 
-function toOriginPattern(rawUrl) {
-  const u = new URL(rawUrl);
-  return `${u.origin}/*`;
-}
-
-async function ensureSitePermission(rawUrl) {
-  const originPattern = toOriginPattern(rawUrl);
-  const has = await chrome.permissions.contains({ origins: [originPattern] });
-  if (has) return true;
-  const granted = await chrome.permissions.request({ origins: [originPattern] });
-  return granted === true;
-}
 
 // ============================================================
 // INIT
@@ -113,12 +101,6 @@ async function startAnalysis() {
   const url = currentTab.url || '';
   if (!url.startsWith('http')) {
     showError('This page cannot be analyzed.\n(chrome://, extension:// etc. URLs are not supported)');
-    return;
-  }
-
-  const hasPermission = await ensureSitePermission(url).catch(() => false);
-  if (!hasPermission) {
-    showError('Site permission is required to analyze this page. Please grant access and try again.');
     return;
   }
 
@@ -256,6 +238,34 @@ function handleComplete(msg) {
     document.getElementById('statChunks').textContent    = msg.stats?.chunks    ?? 0;
     document.getElementById('statSourcemaps').textContent = msg.stats?.sourcemaps ?? 0;
     document.getElementById('statFiles').textContent     = msg.stats?.files     ?? 0;
+
+    const downloadBtn    = document.getElementById('downloadBtn');
+    const noContentNote  = document.getElementById('noContentNote');
+
+    if (collectedFiles.length === 0) {
+      // Nothing at all — disable download, show explanation.
+      downloadBtn.disabled = true;
+      if (noContentNote) {
+        noContentNote.textContent = 'Sourcemaps were found but no source files could be recovered — sourcesContent is missing and referenced source files could not be fetched.';
+        noContentNote.dataset.type = 'error';
+        noContentNote.classList.remove('hidden');
+      }
+    } else if (msg.fallback === 'chunks') {
+      // Source files unavailable — fell back to raw JS chunks.
+      downloadBtn.disabled = false;
+      downloadBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4v12M7 11l5 5 5-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 20h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+      </svg> Download JS Chunks`;
+      if (noContentNote) {
+        noContentNote.textContent = 'No embedded source code found — downloading the raw compiled JS chunks instead.';
+        noContentNote.dataset.type = 'warn';
+        noContentNote.classList.remove('hidden');
+      }
+    } else {
+      downloadBtn.disabled = false;
+      if (noContentNote) noContentNote.classList.add('hidden');
+    }
 
     const btn = document.getElementById('analyzeBtn');
     btn.disabled = false;
